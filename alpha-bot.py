@@ -26,21 +26,26 @@ def main():
 	joinchan(channel)
 	greet=["Hello","I said Hi","Okay forget it"]
 	while 1:
-		ch=random.randomint(0,1)
-		if ch=0:
+		ch=random.randint(0,1)
+		if ch==0:
 			sendmsg("Hi")
-		else:
-		
-			ircmsg = ircsock.recv(2048).decode("UTF-8")
-			print(ircmsg)
-			i=0
-			while ircmsg is None:
-				sendmsg(greet[i])
-				time.wait(3)
-				ircmsg = ircsock.recv(2048).decode("UTF-8")
-				if i ==2:
-					return
+		ircmsg=None
+		ircsock.settimeout(5)
+		ircmsg = ircsock.recv(2048).decode("UTF-8")
+		ircsock.settimeout(None)
 
+		print(ircmsg)
+		i=0
+		while ircmsg is None:
+			sendmsg(greet[i])
+			ircsock.settimeout(5)
+			ircmsg = ircsock.recv(2048).decode("UTF-8")
+			ircsock.settimeout(None)
+			if i ==2:
+				return
+			i=i+1
+def comm(ircmsg):
+			arr=[]
 			ircmsg = ircmsg.strip('\n\r')
 			if ircmsg.find("PRIVMSG") != -1:
 				name = ircmsg.split('!',1)[0][1:]
@@ -78,8 +83,8 @@ def main():
 						 ircsock.send(bytes("NAMES \n", "UTF-8"))
 
 
-			else:
-				if ircmsg.find("PING :") != -1:
-					ping()
+				else:
+					if ircmsg.find("PING :") != -1:
+						ping()
 
 main()
